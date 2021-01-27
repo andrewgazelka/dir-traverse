@@ -2,7 +2,7 @@ use std::collections::VecDeque;
 use std::env;
 use std::path::PathBuf;
 
-fn up(path: PathBuf, args: &[String]) -> Option<PathBuf> {
+fn up(path: &PathBuf, args: &[String]) -> Option<PathBuf> {
     let path_parts: Vec<_> = path.ancestors().collect();
     path_parts.into_iter()
         .enumerate()
@@ -19,14 +19,14 @@ fn up(path: PathBuf, args: &[String]) -> Option<PathBuf> {
         .next()
 }
 
-fn down(path: PathBuf, args: &[String]) -> Option<PathBuf> {
+fn down(path: &PathBuf, args: &[String]) -> Option<PathBuf> {
     let mut paths = VecDeque::new();
-    paths.push_front(path);
+    paths.push_front(path.to_path_buf());
     while let Some(path_on) = paths.pop_back() {
         let lowercase = path_on.file_name().unwrap().to_str().unwrap().to_lowercase();
         let matches = args.iter().all(|arg| lowercase.contains(arg));
         if matches {
-            return Some(path_on);
+            return Some(path_on.to_path_buf());
         }
         let sub_paths = path_on.read_dir().unwrap()
             .filter_map(|dir_entry| {
@@ -45,15 +45,15 @@ fn main() {
     let sub_args = &args[1..];
     let path = env::current_dir().unwrap();
     let result = if mode == "d" { // down
-        down(path, sub_args)
+        down(&path, sub_args)
     } else if mode == "u" {
-        up(path, sub_args)
+        up(&path, sub_args)
     } else {
         panic!("invalid mode")
     };
 
     match result {
-        None => panic!("no valid path"),
+        None => println!("{}", path.to_str().unwrap()),
         Some(sub_path) => {
             println!("{}", sub_path.to_str().unwrap());
         }
