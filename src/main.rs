@@ -5,9 +5,8 @@ use std::path::PathBuf;
 fn up(path: &PathBuf, args: &[String]) -> Option<PathBuf> {
     let path_parts: Vec<_> = path.ancestors().collect();
     path_parts.into_iter()
-        .enumerate()
         .rev()
-        .filter_map(|(i, path)| {
+        .filter_map(|path| {
             let last = path.iter().last().unwrap().to_str().unwrap().to_lowercase();
             let valid = args.iter().all(|arg| last.contains(arg));
             if valid {
