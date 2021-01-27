@@ -21,12 +21,20 @@ fn up(path: &PathBuf, args: &[String]) -> Option<PathBuf> {
 
 fn down(path: &PathBuf, args: &[String]) -> Option<PathBuf> {
     let mut paths = VecDeque::new();
+    let mut args_iter = args.iter();
+    let mut arg_on = args_iter.next().unwrap();
     paths.push_front(path.to_path_buf());
     while let Some(path_on) = paths.pop_back() {
         let lowercase = path_on.file_name().unwrap().to_str().unwrap().to_lowercase();
-        let matches = args.iter().all(|arg| lowercase.contains(arg));
+        let matches = lowercase.contains(arg_on);
         if matches {
-            return Some(path_on.to_path_buf());
+            match args_iter.next() {
+                None => return Some(path_on),
+                Some(next_arg) => {
+                    arg_on = next_arg;
+                    paths.clear(); // we only consider descendants
+                }
+            }
         }
         let sub_paths = path_on.read_dir().unwrap()
             .filter_map(|dir_entry| {
