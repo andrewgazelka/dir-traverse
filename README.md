@@ -23,7 +23,7 @@ dir-traverse d {PATH}
 Traverses down the directory tree. If you are in `/apple` and type `man` (unless there are 
 conflicting directories), you will be sent to `/apple/orange/mango`. Uses a breadth-first-search.
 
-## Zsh / Bash
+## Zsh
 ```bash
 function u () {
   folder=$(dir-traverse u $argv[1])
@@ -31,7 +31,7 @@ function u () {
 }
 
 function d() { 
-  folder=$(dir-traverse d $argv[1])
+  folder=$(dir-traverse d $argv[1,-1])
   cd $folder
 }
 ```
